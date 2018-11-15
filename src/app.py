@@ -7,12 +7,11 @@ import requests
 from chalice import Chalice, Response, BadRequestError
 
 from chalicelib import get_stage
+from chalicelib.db.models import DetectedPeopleModel
 
 app = Chalice(app_name='concierge-api')
 app.debug = True
 app.log.setLevel(logging.DEBUG)
-
-from chalicelib.db.models import SampleModel
 
 PICTURE_S3_BUCKET = 'sa-jogo-pictures-{}'.format(get_stage())
 
@@ -27,12 +26,18 @@ def hi():
         'hello':'world'
     }
 
-@app.route('/upload', methods=['POST'])
-def upload_picture():
+@app.route('/stage')
+def check_stage():
+    return {
+        'stage':get_stage()
+    }
+
+@app.route('/upload/{event_id}', methods=['POST'])
+def upload_picture(event_id):
     if app.current_request.json_body.get('uuid'):
-        user_uuid = app.current_request.json_body['uuid']
+        pic_uuid = app.current_request.json_body['uuid']
     else:
-        user_uuid = str(uuid.uuid4())
+        pic_uuid = str(uuid.uuid4())
     selfie = app.current_request.json_body['image']
 
     s3 = boto3.resource('s3')
@@ -48,7 +53,7 @@ def upload_picture():
     rekognition = boto3.client('rekognition')
 
     s3.Bucket(PICTURE_S3_BUCKET).put_object(
-        Key='selfies/{}.jpg'.format(user_uuid),
+        Key='selfies/{}.jpg'.format(pic_uuid),
         Body=base64.b64decode(selfie),
     )
 
@@ -67,19 +72,55 @@ def upload_picture():
         Image={
             'S3Object': {
                 'Bucket': PICTURE_S3_BUCKET,
-                'Name': 'selfies/{}.jpg'.format(user_uuid),
+                'Name': 'selfies/{}.jpg'.format(pic_uuid),
             },
         },
+        DetectionAttributes=[
+            'ALL'
+        ]
     )
 
-    return response
+    ## parse rekognition response
 
-    # if not len(response['FaceRecords']) > 0:
-    #     raise BadRequestError('Could not find valid faces')
-    #
-    # rekognition_face_id = response['FaceRecords'][0]['Face']['FaceId']
-    #
-    # return {
-    #     'uuid': user_uuid,
-    #     'face_id': rekognition_face_id
-    # }
+    if not len(response['FaceRecords']) > 0:
+        raise BadRequestError('Could not find valid faces')
+
+    total_people = 0
+
+    for face in response['FaceRecords']:
+        rekognition_face_id = face['Face']['FaceId']
+        age_high = face['FaceDetail']['AgeRange']['High']
+        age_low = face['FaceDetail']['AgeRange']['Low']
+        gender = face['FaceDetail']['Gender']['Value']
+        gender_score = face['FaceDetail']['Gender']['Confidence']
+        smile = face['FaceDetail']['Smile']['Value']
+        smile_score = face['FaceDetail']['Smile']['Confidence']
+
+        dom_emotion_score = 0
+        dom_emotion = None
+        for emotion in face['FaceDetail']['Emotions']:
+            if emotion['Confidence'] > dom_emotion_score:
+                dom_emotion_score = emotion['Confidence']
+                dom_emotion = emotion['Type']
+
+        detected = DetectedPeopleModel(
+            event_id=event_id,
+            object_id=pic_uuid,
+            face_id=rekognition_face_id,
+            dominant_emotion=dom_emotion,
+            dominant_emotion_score=dom_emotion_score,
+            smile=smile,
+            smile_score=smile_score,
+            age_low=age_low,
+            age_high=age_high,
+            gender=gender,
+            gender_score=gender_score
+        )
+        detected.save()
+        total_people = total_people+1
+
+    return {
+        'event_id': event_id,
+        'object_id': pic_uuid,
+        'total_rek_people': total_people
+    }

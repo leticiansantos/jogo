@@ -1,8 +1,7 @@
-from .models import SampleModel
+from .models import DetectedPeopleModel
 
-
-if not SampleModel.exists():
-    SampleModel.create_table(
+if not DetectedPeopleModel.exists():
+    DetectedPeopleModel.create_table(
         read_capacity_units=1,
         write_capacity_units=1,
         wait=True,
