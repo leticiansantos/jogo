@@ -1,23 +1,39 @@
 {
     "Version": "2012-10-17",
     "Statement": [{
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:*"
-            ],
-            "Resource": "arn:aws:dynamodb:us-east-1:*:table/*"
-        }, {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-                "logs:DescribeLogStreams"
-            ],
-            "Resource": [
-                "arn:aws:logs:*:*:*"
-            ]
-        }
-
-    ]
+        "Effect": "Allow",
+        "Action": [
+            "dynamodb:*"
+        ],
+        "Resource": "arn:aws:dynamodb:us-east-1:*:table/*"
+    }, {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": [
+            "arn:aws:logs:*:*:*"
+        ]
+    }, {
+        "Effect": "Allow",
+        "Action": [
+            "s3:*"
+        ],
+        "Resource": "arn:aws:s3:::*/*"
+    }, {
+        "Effect": "Allow",
+        "Action": [
+            "rekognition:CompareFaces",
+            "rekognition:CreateCollection",
+            "rekognition:IndexFaces",
+            "rekognition:DetectText"
+        ],
+        "Resource": [
+            "*"
+        ],
+        "Sid": "bf6cdc0612bc42e19309c46cfa93999b"
+    }]
 }
