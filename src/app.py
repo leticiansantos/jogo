@@ -3,7 +3,7 @@ import base64
 import boto3
 import uuid
 import time
-
+import json
 import requests
 from chalice import Chalice, Response, BadRequestError
 
@@ -32,6 +32,11 @@ def check_stage():
     return {
         'stage':get_stage()
     }
+
+@app.route('/event/{event_id}')
+def get_raw_event(event_id):
+    data = DetectedPeopleModel.query(event_id)
+    return json.dumps(list(data), default=lambda o: o.__dict__)
 
 @app.route('/upload/{event_id}', methods=['POST'])
 def upload_picture(event_id):
