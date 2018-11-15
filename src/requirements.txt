@@ -1,0 +1,4 @@
+boto3==1.7.84
+chalice==1.6.0
+pynamodb==3.3.0
+requests==2.18.4
