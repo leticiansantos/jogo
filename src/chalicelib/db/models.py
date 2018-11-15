@@ -11,15 +11,14 @@ def generate_uuid():
 
 class DetectedPeopleModel(Model):
     event_id = UnicodeAttribute(hash_key=True)
-    object_id = UnicodeAttribute(default=generate_uuid)
-    face_id = UnicodeAttribute(null=False)
+    object_face_id = UnicodeAttribute(range_key=True)
     dominant_emotion = UnicodeAttribute(null=False)
     dominant_emotion_score = NumberAttribute(null=False)
     smile = BooleanAttribute(null=False)
     smile_score = NumberAttribute(null=False)
     age_low = NumberAttribute(null=True)
     age_high = NumberAttribute(null=True)
-    gender = BooleanAttribute(null=True)
+    gender = UnicodeAttribute(null=True)
     gender_score = NumberAttribute(null=True)
 
     class Meta:

@@ -105,8 +105,7 @@ def upload_picture(event_id):
 
         detected = DetectedPeopleModel(
             event_id=event_id,
-            object_id=pic_uuid,
-            face_id=rekognition_face_id,
+            object_face_id=pic_uuid+"---"+rekognition_face_id,
             dominant_emotion=dom_emotion,
             dominant_emotion_score=dom_emotion_score,
             smile=smile,
