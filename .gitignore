@@ -1,5 +1,7 @@
 # images
 *.jpg
+*.mov
+*.mp4
 
 # project bins and certs
 src/.chalice/deployments/

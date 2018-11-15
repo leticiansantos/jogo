@@ -10,6 +10,8 @@ from chalice import Chalice, Response, BadRequestError
 from chalicelib import get_stage
 from chalicelib.db.models import DetectedPeopleModel
 
+import mysql.connector
+
 app = Chalice(app_name='jogo')
 app.debug = True
 app.log.setLevel(logging.DEBUG)

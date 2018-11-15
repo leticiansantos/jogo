@@ -8,6 +8,10 @@
         "Resource": "arn:aws:dynamodb:us-east-1:*:table/*"
     }, {
         "Effect": "Allow",
+        "Action": "rds:*",
+        "Resource": ["arn:aws:rds:us-east-1:*:*"]
+    }, {
+        "Effect": "Allow",
         "Action": [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
