@@ -2,6 +2,7 @@ import logging
 import base64
 import boto3
 import uuid
+import time
 
 import requests
 from chalice import Chalice, Response, BadRequestError
@@ -9,7 +10,7 @@ from chalice import Chalice, Response, BadRequestError
 from chalicelib import get_stage
 from chalicelib.db.models import DetectedPeopleModel
 
-app = Chalice(app_name='concierge-api')
+app = Chalice(app_name='jogo')
 app.debug = True
 app.log.setLevel(logging.DEBUG)
 
@@ -86,6 +87,7 @@ def upload_picture(event_id):
         raise BadRequestError('Could not find valid faces')
 
     total_people = 0
+    now=int(time.time())
 
     for face in response['FaceRecords']:
         rekognition_face_id = face['Face']['FaceId']
@@ -106,6 +108,7 @@ def upload_picture(event_id):
         detected = DetectedPeopleModel(
             event_id=event_id,
             object_face_id=pic_uuid+"---"+rekognition_face_id,
+            timestamp=now,
             dominant_emotion=dom_emotion,
             dominant_emotion_score=dom_emotion_score,
             smile=smile,
