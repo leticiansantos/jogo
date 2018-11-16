@@ -8,9 +8,8 @@ import requests
 from chalice import Chalice, Response, BadRequestError
 
 from chalicelib import get_stage
-from chalicelib.db.models import DetectedPeopleModel
-
-import mysql.connector
+# from chalicelib.db.models import DetectedPeopleModel
+from chalicelib.db.models_mysql import DetectedPeopleModel
 
 app = Chalice(app_name='jogo')
 app.debug = True
@@ -114,7 +113,8 @@ def upload_picture(event_id):
 
         detected = DetectedPeopleModel(
             event_id=event_id,
-            object_face_id=pic_uuid+"---"+rekognition_face_id,
+            object_id=pic_uuid,
+            face_id=rekognition_face_id,
             timestamp=now,
             dominant_emotion=dom_emotion,
             dominant_emotion_score=dom_emotion_score,

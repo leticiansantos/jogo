@@ -19,7 +19,7 @@ db = peewee.MySQLDatabase(
 )
 
 class DetectedPeopleModel(peewee.Model):
-    event_id = peewee.CharField(primary_key=True)
+    event_id = peewee.CharField()
     object_id = peewee.CharField()
     face_id = peewee.CharField()
     timestamp = peewee.TimestampField()
@@ -34,6 +34,6 @@ class DetectedPeopleModel(peewee.Model):
 
     class Meta:
         database = db
-        indexes = (
-            (('event_id', 'object_id', 'face_id'), True),
-        )
+        # indexes = (
+        #     (('event_id', 'object_id', 'face_id'), True),
+        # )
