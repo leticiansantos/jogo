@@ -5,6 +5,8 @@ import uuid
 import time
 import json
 import requests
+from io import BytesIO
+from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 from chalice import Chalice, Response, BadRequestError
 
 from chalicelib import get_stage
@@ -35,7 +37,7 @@ def check_stage():
     }
 
 @app.route('/event/{event_id}')
-def get_raw_event(event_id):
+def get_aggregated_event(event_id):
     data = DetectedPeopleModel.query(event_id)
     return json.dumps(list(data), default=lambda o: o.__dict__)
 
@@ -95,6 +97,10 @@ def upload_picture(event_id):
     total_people = 0
     now=int(time.time())
 
+    # get image with PIL
+    image = Image.open(BytesIO(base64.b64decode(selfie))).convert("RGBA")
+    image_width, image_height = image.size
+
     for face in response['FaceRecords']:
         rekognition_face_id = face['Face']['FaceId']
         age_high = face['FaceDetail']['AgeRange']['High']
@@ -127,6 +133,32 @@ def upload_picture(event_id):
         )
         detected.save()
         total_people = total_people+1
+
+        # FIXME saving image in local file system
+        # what happens when running in the cloud?
+
+        # add bounding boxes
+        width = image_width * face['FaceDetail']['BoundingBox']['Width']
+        height = image_height * face['FaceDetail']['BoundingBox']['Height']
+        left = image_width * face['FaceDetail']['BoundingBox']['Left']
+        top = image_height * face['FaceDetail']['BoundingBox']['Top']
+
+        draw = ImageDraw.Draw(image)
+        draw.rectangle(((left, top), (left + height, top + width)), outline="red")
+
+        # FIXME font path to change image size in picture
+        # what happens when running in the cloud?
+
+        # TODO set font size based on image size
+        # if image is too big, font size needs to be bigger
+        font_path = "/Library/Fonts/Arial.ttf"
+        font = ImageFont.truetype(font_path, 16)
+
+        draw.text((left + 10, top - 10), dom_emotion, fill="yellow", font=font)
+
+    # export image
+    # TODO save image in S3
+    image.save("/Users/sletic/Pictures/JoGoOut/"+pic_uuid+".jpg", "JPEG")
 
     return {
         'event_id': event_id,
