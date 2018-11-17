@@ -1,8 +1,27 @@
 # JoGo Media
 
+Demo presented in SA Launch in Nov 17th 2018 in Irvine
+
+JoGo Team:
+- Zaid Altalib (altzaid@)
+- Manish Sharma (sharmajt@)
+- Sanjay Doiphode (sjdoi@)
+- Ram Vittal (rvvittal@)
+- Leticia dos Santos (sletic@)
+
+## FYI
+
+- You need to have an RDS instance created and update the connection information
+chalicelib/db/models_mysql.py file
+- The result image is being saved in the local file system. Not sure what happens
+when it's running in the cloud
+- For CodeCommit you need to configure your local repository origin. Once it's
+done, each push to CodeCommit should trigger a deployment in the code pipeline
+- To-do: Remove DynamoDB from project (we are not using anymore)
 
 ## Pre-requisites
 - Python 3.6.5 (take a look at [`pyenv`](https://github.com/pyenv/pyenv))
+- virtualenv and virtualenvwrapper
 
 ## How to run locally
 
@@ -12,6 +31,7 @@
 - Install Local DynamoDB: `sudo make install-ddb -C src/`
 - Start local DynamoDB instance: `make start-ddb -C src/`
 - Start local app server: `make run -C src/`
+- To deploy it to your aws account: `make deploy-test -C src/`
 
 You can access using `http://localhost:8000`
 
